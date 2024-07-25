@@ -147,6 +147,8 @@ async function resetPassword(req, res) {
 	}
 }
 
+// ? Currently no need of this function
+
 async function changeTeamPassword(req, res) {
 	try {
 		const { newPassword, confirmPassword, email } = req.body;
@@ -229,10 +231,8 @@ async function updateUser(req, res) {
 		email,
 		name,
 		profile,
-		userStatus,
 		newPassword,
 		confirmPassword,
-		teamLeadName,
 	} = req.body;
 	console.log("req.body", req.body);
 
@@ -259,17 +259,17 @@ async function updateUser(req, res) {
 				);
 			}
 		}
-		if (userStatus !== undefined) {
-			if (userStatus === "true") {
-				userStatus = true;
-			} else if (userStatus === "false") {
-				userStatus = false;
-			}
-		}
+		// if (userStatus !== undefined) {
+		// 	if (userStatus === "true") {
+		// 		userStatus = true;
+		// 	} else if (userStatus === "false") {
+		// 		userStatus = false;
+		// 	}
+		// }
 
 		const updatedUser = await User.findOneAndUpdate(
 			{ email },
-			{ email, name, profile, userStatus, teamLeadName },
+			{ email, name, profile },
 			{
 				new: true,
 			}
@@ -300,6 +300,8 @@ async function deleteUser(req, res) {
 	}
 }
 
+
+// ? Cureently payNotifications, sent
 
 async function payNotifications(req, res) {
 	const email = req.foundUser.email;

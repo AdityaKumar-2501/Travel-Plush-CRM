@@ -12,13 +12,13 @@ router.get("/", checkUserRoute)
 
 router.post("/signup", signUpSuperAdmin)
 router.post("/login", LoginUser);
-router.post("/resetPassword", resetPassword)
-router.post("/changeTeamPassword", changeTeamPassword)
+// router.post("/resetPassword", resetPassword)
+// router.post("/changeTeamPassword", changeTeamPassword)
 router.get("/payNotifications", verifyToken, payNotifications)
 
 
 
-router.get("/get", getUser)
+router.get("/get", verifyToken, getUser)
 router.post("/post", verifyToken, postUser)
 router.post("/update", verifyToken, updateUser)
 router.delete("/delete", verifyToken, deleteUser)

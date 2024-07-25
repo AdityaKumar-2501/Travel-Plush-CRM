@@ -4,7 +4,7 @@ const Lead = require('../models/lead.js')
 const xlsx = require('xlsx');
 const upload = require("../middlewares/upload.js");
 const mongoose = require('mongoose');
-
+const verifyToken = require("../middlewares/authentication");
 
 // Function to convert Excel date to JavaScript date
 const excelDateToJSDate = (serial) => {
@@ -26,7 +26,7 @@ const excelDateToJSDate = (serial) => {
 
 
 // Set up a route for file uploads
-router.post("/", upload.single("file"), async (req, res) => {
+router.post("/",verifyToken, upload.single("file"), async (req, res) => {
 
 	try {
 		if (!req.file) {

@@ -21,11 +21,11 @@ const userSchema = mongoose.Schema({
 	profile: { type: String, required: true },//superAdmin/salesTl/salesExecutive/operationsTl/operationsExecutive
 	// profile: { type: String, enum: ["superAdmin", "salesTl","salesExecutive", "operationsTl", "operationsExecutive"], required: true },
 	password: { type: String, required: true },
-	paidDateCreated: { type: String, required: false },
-	orgSubscriptionAmount: { type: String, required: false },
-	teamLeadName: { type: String, required: false },
-	currentOtp: { type: String, required: false },
-	userStatus: { type: Boolean, required: false },
+	// paidDateCreated: { type: String, required: false },
+	// orgSubscriptionAmount: { type: String, required: false },
+	// teamLeadName: { type: String, required: false },
+	// currentOtp: { type: String, required: false },
+	// userStatus: { type: Boolean, required: false },
 });
 
 // transection schema

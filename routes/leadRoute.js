@@ -1,17 +1,17 @@
 const express = require('express');
 const router = express.Router();
-
+const verifyToken = require("../middlewares/authentication");
 const { testRouter, getAllLeads, createLead, updateLead, deleteLead, filterLead,golbalSearch, downloadLeads } = require('../controllers/leadController');
 
 // router.get('/', testRouter)
-router.get('/get', getAllLeads)
-router.post('/post', createLead)
-router.put('/update', updateLead)
-router.delete('/delete', deleteLead)
-router.post('/filter', filterLead);
-router.get('/', golbalSearch);
+router.get('/get',verifyToken, getAllLeads)
+router.post('/post',verifyToken, createLead)
+router.put('/update',verifyToken, updateLead)
+router.delete('/delete',verifyToken, deleteLead)
+router.post('/filter',verifyToken, filterLead);
+router.get('/',verifyToken, golbalSearch);
 
 // Download route
-router.get('/download', downloadLeads);
+router.get('/download',verifyToken, downloadLeads);
 
 module.exports = router;
