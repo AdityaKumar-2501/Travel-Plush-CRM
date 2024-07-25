@@ -5,9 +5,9 @@ const { testRouter, getAllTodos, createTodo, updateTodo, deleteTodo, getReminder
 
 router.get('/', verifyToken, testRouter)
 router.get('/get',verifyToken, getAllTodos)
-router.post('/post', verifyToken,createTodo)
+// router.post('/post', verifyToken,createTodo)
 router.put('/update',verifyToken, updateTodo)
-router.delete('/delete',verifyToken, deleteTodo)
+// router.delete('/delete',verifyToken, deleteTodo)
 router.get('/reminder',verifyToken, getReminder);
 
 module.exports = router;
