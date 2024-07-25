@@ -20,7 +20,7 @@ router.get("/payNotifications", verifyToken, payNotifications)
 
 router.get("/get", getUser)
 router.post("/post", verifyToken, postUser)
-router.post("/Update", verifyToken, updateUser)
+router.post("/update", verifyToken, updateUser)
 router.post("/delete", verifyToken, deleteUser)
 
 
