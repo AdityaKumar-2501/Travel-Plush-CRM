@@ -21,7 +21,7 @@ router.get("/payNotifications", verifyToken, payNotifications)
 router.get("/get", getUser)
 router.post("/post", verifyToken, postUser)
 router.post("/update", verifyToken, updateUser)
-router.post("/delete", verifyToken, deleteUser)
+router.delete("/delete", verifyToken, deleteUser)
 
 
 router.post("/sendOtp", sentOtp)
