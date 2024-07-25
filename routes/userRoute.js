@@ -22,7 +22,7 @@ router.get("/get", getUser)
 router.post("/post", verifyToken, postUser)
 router.post("/update", verifyToken, updateUser)
 router.delete("/delete", verifyToken, deleteUser)
-
+router.post('/resetPassword', verifyToken, resetPassword)
 
 router.post("/sendOtp", sentOtp)
 router.post("/verifyotp", verifyOtp)

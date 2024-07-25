@@ -300,6 +300,7 @@ async function deleteUser(req, res) {
 	}
 }
 
+
 async function payNotifications(req, res) {
 	const email = req.foundUser.email;
 	const mobile = req.foundUser.mobile;
