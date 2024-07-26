@@ -3,12 +3,28 @@ function MiddleWares(app) {
     const cookieParser = require("cookie-parser")
     const express = require("express");
     const bodyParser = require("body-parser");
-    // const cors = require("cors");
+    const cors = require("cors");
     dotenv.config();
 
     app.use(express.json());
     app.use(cookieParser());
-    // Create a new express app
+
+    const corsOptions = {
+        origin: function (origin, callback) {
+            if (!origin || allowedDomains.includes(origin) || origin.endsWith(".ocpl.tech")) {
+                callback(null, true);
+            } else {
+                callback(new Error("Not allowed by CORS"));
+            }
+        },
+        methods: "GET,POST,OPTIONS,PUT,PATCH,DELETE",
+        allowedHeaders: "Content-Type,Authorization",
+        credentials: true,
+        preflightContinue: false,
+        optionsSuccessStatus: 204
+    };
+
+    app.use(cors(corsOptions));
 
     app.use(bodyParser.json({ limit: '50mb' }));
     app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
@@ -21,6 +37,7 @@ function MiddleWares(app) {
         "http://localhost:3000",
         "http://localhost:3001",
         "http://localhost:3002",
+        "http://localhost:5173",
         "https://aestra.vercel.app",
         "https://crm-dashboard-lime.vercel.app",
         "https://marketing-strategy.vercel.app",
@@ -31,6 +48,19 @@ function MiddleWares(app) {
         "https://testsub1.ocpl.tech", "https://legalpapersindia.com", "https://fssairegistrationportal.org", "http://iec-codeindia.org" //previously we dont have to allow kit in extra file making it automatic. i dont know why we cant start it now
         // "https://testsub2.ocpl.tech"
     ];
+
+    // app.use(cors({
+    //     origin: function (origin, callback) {
+    //         if (!origin || allowedDomains.includes(origin) || origin.endsWith(".ocpl.tech")) {
+    //             callback(null, true);
+    //         } else {
+    //             callback(new Error("Not allowed by CORS"));
+    //         }
+    //     },
+    //     methods: "GET,POST,OPTIONS,PUT,PATCH,DELETE",
+    //     allowedHeaders: "Content-Type,Authorization",
+    //     credentials: true,
+    // }));
 
     // Middleware to handle CORS dynamically
     app.use((req, res, next) => {

@@ -4,6 +4,7 @@ const xlsx = require("xlsx");
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
+const {User} = require("../models/user");
 
 const testRouter = (req, res) => {
 	try {
@@ -36,12 +37,12 @@ const filterLead = async (req, res) => {
 };
 
 async function getAllLeads(req, res) {
-	const page = req.query.page - 1 || 0;  // subtracted 1 so that first 3 will not skip
+	const page = req.query.page - 1 || 0; // subtracted 1 so that first 3 will not skip
 	try {
 		const allLeads = await Lead.aggregate([
 			{ $skip: page * 10 },
-            { $limit: 10 }
-		])
+			{ $limit: 10 },
+		]);
 		return res.status(200).send(allLeads);
 	} catch (error) {
 		console.log("error:", error);
@@ -156,9 +157,46 @@ async function golbalSearch(req, res) {
 	}
 }
 
+async function assignLead(req, res) {
+	const { assignTo, assignBy, leadId } = req.body;
+	try {
+		// for finding the any Super Admin exist
+		const existingSuperAdmin = await User.findOne({
+			_id: assignBy,
+			profile: "superAdmin",
+		});
+		if (!existingSuperAdmin) {
+			return res
+				.status(400)
+				.send(`Assigning User is not the Super Admin`);
+		}
+
+		// for finding the any user exist to assignTo
+		const existingUser = await User.findOne({
+			_id : assignTo
+		});
+		if(!existingUser) {
+			return res.status(400).send(`Assigned User is not Exist`);
+		}
+
+		// for finding the any lead exist
+		const existingLead = await Lead.findOne({_id: leadId});
+		if(!existingLead) {
+			return res.status(400).send(`Lead is not Exist`);
+		}
+
+		const assigning = await Lead.findOneAndUpdate({_id: leadId, $set: {assignTo, assignBy, assignAt: Date.now() }});
+
+		if(assigning) {
+			return res.status(200).json({Super_Admin :existingSuperAdmin.name , User:existingUser.name, lead: existingLead.name });
+		}
+
+	} catch (error) {
+		res.status(500).send(`Internal Server Error - ${error.message}`);
+	}
+}
 
 async function downloadLeads(req, res) {
-
 	// saves the leads details excel file in downloads folder
 	const downloadsDir = path.join(__dirname, "..", "downloads");
 	if (!fs.existsSync(downloadsDir)) {
@@ -166,14 +204,18 @@ async function downloadLeads(req, res) {
 	}
 
 	// * This function helps to iterate over the sub fields of leads like flights and hotel details and return new object with details.
-	
-	function flattenObject(ob, parent = '', res = {}) {
+
+	function flattenObject(ob, parent = "", res = {}) {
 		for (let key in ob) {
 			if (!ob.hasOwnProperty(key)) continue;
-	
-			let propName = parent ? parent + '_' + key : key;
-	
-			if (typeof ob[key] === "object" && ob[key] !== null && !Array.isArray(ob[key])) {
+
+			let propName = parent ? parent + "_" + key : key;
+
+			if (
+				typeof ob[key] === "object" &&
+				ob[key] !== null &&
+				!Array.isArray(ob[key])
+			) {
 				flattenObject(ob[key], propName, res);
 			} else if (Array.isArray(ob[key])) {
 				ob[key].forEach((item, index) => {
@@ -190,8 +232,6 @@ async function downloadLeads(req, res) {
 		return res;
 	}
 
-	
-
 	try {
 		const leads = await Lead.find({}).lean();
 
@@ -203,7 +243,10 @@ async function downloadLeads(req, res) {
 		// Remove _id.buffer fields if any are still present
 		const cleanedLeads = flattenedLeads.map((lead) => {
 			for (let key in lead) {
-				if (key.startsWith("_id.buffer") || key.includes("_id_buffer")) {
+				if (
+					key.startsWith("_id.buffer") ||
+					key.includes("_id_buffer")
+				) {
 					delete lead[key];
 				}
 			}
@@ -243,4 +286,5 @@ module.exports = {
 	filterLead,
 	golbalSearch,
 	downloadLeads,
+	assignLead,
 };
