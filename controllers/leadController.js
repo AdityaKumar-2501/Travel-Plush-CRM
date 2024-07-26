@@ -65,7 +65,7 @@ async function createLead(req, res) {
 		return res.status(200).send("Lead created successfully");
 	} catch (error) {
 		console.log("error:", error);
-		return res.status(500).send(`Error : ${error}`);
+		return res.status(500).send(`Internal Server Error: ${error.message}`);
 	}
 }
 
@@ -153,7 +153,7 @@ async function golbalSearch(req, res) {
 		return res.status(200).json(results);
 	} catch (error) {
 		console.error(error);
-		return res.status(500).send("Internal server error");
+		return res.status(500).send(`Internal Server Error: ${error.message}`);
 	}
 }
 
@@ -272,7 +272,7 @@ async function downloadLeads(req, res) {
 	} catch (error) {
 		console.error(error);
 		if (!res.headersSent) {
-			res.status(500).send(error.message);
+			return res.status(500).send(`Internal Server Error: ${error.message}`);
 		}
 	}
 }

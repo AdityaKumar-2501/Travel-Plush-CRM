@@ -22,7 +22,7 @@ async function getAllLeads(req, res) {
 		const { names, totalLeads } = allLeads[0];
 		return res.status(200).json({ names, totalLeads });
 	} catch (error) {
-		return res.status(500).send("Error: " + error.message);
+		return res.status(500).send(`Internal Server Error: ${error.message}`);
 	}
 }
 
@@ -56,7 +56,7 @@ async function todaysLeads(req, res) {
 			res.status(200).send({ totalCount: 0 });
 		}
 	} catch (error) {
-		return res.status(500).send("Error: " + error.message);
+		return res.status(500).send(`Internal Server Error: ${error.message}`);
 	}
 }
 
@@ -90,7 +90,7 @@ async function weeklyLeads(req, res) {
 			res.status(200).send({ totalCount: 0 });
 		}
 	} catch (error) {
-		return res.status(500).send("Error: " + error.message);
+		return res.status(500).send(`Internal Server Error: ${error.message}`);
 	}
 }
 
@@ -124,7 +124,7 @@ async function monthlyLeads(req, res) {
 			res.status(200).send({ totalCount: 0 });
 		}
 	} catch (error) {
-		return res.status(500).send("Error: " + error.message);
+		return res.status(500).send(`Internal Server Error: ${error.message}`);
 	}
 }
 
@@ -150,7 +150,7 @@ async function everyMonthLeads(req, res) {
 			res.status(200).send({ _id: _id || 0, numberofLeads: 0 });
 		}
 	} catch (error) {
-		return res.status(500).send("Error: " + error.message);
+		return res.status(500).send(`Internal Server Error: ${error.message}`);
 	}
 }
 
@@ -181,7 +181,7 @@ async function userProfile(req, res) {
 			return res.status(200).send(users);
 		}
 	} catch (error) {
-		return res.status(500).send("Error: " + error.message);
+		return res.status(500).send(`Internal Server Error: ${error.message}`);
 	}
 }
 module.exports = {

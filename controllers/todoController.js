@@ -16,7 +16,7 @@ async function getAllTodos(req, res) {
         return res.status(200).send(allTodos);
     } catch (error) {
         console.log('error:', error);
-        return res.status(500).send('Internal server error');
+        return res.status(500).send(`Internal Server Error: ${error.message}`);
     }
 }
 
@@ -31,7 +31,7 @@ async function createTodo(req, res) {
     }
 }
 
-// only PUT mehtod is working not patch mehtod
+
 async function updateTodo(req, res) {
     let body = req.body;
     let id = body.id;
@@ -50,7 +50,7 @@ async function updateTodo(req, res) {
         return res.status(200).send('Data updated successfully');
     } catch (error) {
         console.error('Error:', error);
-        return res.status(500).send(`Internal server error`);
+        return res.status(500).send(`Internal Server Error: ${error.message}`);
     }
 }
 
@@ -69,7 +69,7 @@ async function deleteTodo(req, res) {
         return res.status(200).send('Todo deleted successfully');
     } catch (error) {
         console.log('Error:', error);
-        return res.status(500).send(`Internal Server Error`);
+        return res.status(500).send(`Internal Server Error: ${error.message}`);
     }
 }
 
@@ -89,7 +89,7 @@ async function getReminder(req,res){
     }
     catch(e){
         console.log('Error:', error);
-        return res.status(500).send(`Internal Server Error`);
+        return res.status(500).send(`Internal Server Error: ${error.message}`);
     }
     
 }

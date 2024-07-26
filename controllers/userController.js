@@ -143,7 +143,7 @@ async function resetPassword(req, res) {
 		// console.log("updatedUser", updatedUser)
 		res.status(200).send(`Password reset successfully.`);
 	} catch (error) {
-		res.status(500).send(`Internal Server Error${error.message}`);
+		res.status(500).send(`Internal Server Error - ${error.message}`);
 	}
 }
 
@@ -175,7 +175,7 @@ async function changeTeamPassword(req, res) {
 		// console.log("updatedUser", updatedUser)
 		res.status(200).send(`Password reset successfully.`);
 	} catch (error) {
-		res.status(500).send(`Internal Server Error${error.message}`);
+		res.status(500).send(`Internal Server Error - ${error.message}`);
 	}
 }
 
@@ -185,7 +185,7 @@ async function getUser(req, res) {
 		return res.status(200).send(allUser);
 	} catch (error) {
 		console.log("error:", error);
-		return res.status(500).send(`Internal server error ${error.message}`);
+		return res.status(500).send(`Internal server error - ${error.message}`);
 	}
 }
 
@@ -222,7 +222,7 @@ async function postUser(req, res) {
 		await newUser.save();
 		res.status(200).send("User created successfully");
 	} catch (error) {
-		res.status(500).send(`Internal server error ${error.message}`);
+		res.status(500).send(`Internal server error - ${error.message}`);
 	}
 }
 
@@ -296,7 +296,7 @@ async function deleteUser(req, res) {
 		}
 		return res.status(200).send("User Deleted successfully");
 	} catch (error) {
-		return res.status(500).send(`Internal Server Error-${error.message}`);
+		return res.status(500).send(`Internal Server Error - ${error.message}`);
 	}
 }
 
@@ -424,7 +424,7 @@ async function sentOtp(req, res) {
 		// 	res.status(500).send("internal Server Error. Please try again later.");
 		// }
 	} catch (e) {
-		res.status(500).send("internal Server Error. Please try again later.");
+		res.status(500).send("Internal Server Error. Please try again later.");
 	}
 }
 
