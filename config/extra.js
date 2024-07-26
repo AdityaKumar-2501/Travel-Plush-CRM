@@ -9,22 +9,22 @@ function MiddleWares(app) {
     app.use(express.json());
     app.use(cookieParser());
 
-    const corsOptions = {
-        origin: function (origin, callback) {
-            if (!origin || allowedDomains.includes(origin) || origin.endsWith(".ocpl.tech")) {
-                callback(null, true);
-            } else {
-                callback(new Error("Not allowed by CORS"));
-            }
-        },
-        methods: "GET,POST,OPTIONS,PUT,PATCH,DELETE",
-        allowedHeaders: "Content-Type,Authorization",
-        credentials: true,
-        preflightContinue: false,
-        optionsSuccessStatus: 204
-    };
+    // const corsOptions = {
+    //     origin: function (origin, callback) {
+    //         if (!origin || allowedDomains.includes(origin) || origin.endsWith(".ocpl.tech")) {
+    //             callback(null, true);
+    //         } else {
+    //             callback(new Error("Not allowed by CORS"));
+    //         }
+    //     },
+    //     methods: "GET,POST,OPTIONS,PUT,PATCH,DELETE",
+    //     allowedHeaders: "Content-Type,Authorization",
+    //     credentials: true,
+    //     preflightContinue: false,
+    //     optionsSuccessStatus: 204
+    // };
 
-    app.use(cors(corsOptions));
+    app.use(cors());
 
     app.use(bodyParser.json({ limit: '50mb' }));
     app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
