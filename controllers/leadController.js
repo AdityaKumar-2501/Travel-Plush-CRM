@@ -197,6 +197,10 @@ async function assignLead(req, res) {
 }
 
 async function downloadLeads(req, res) {
+
+	// get array of Ids and then find specific entries 
+	const body = req.body;
+
 	// saves the leads details excel file in downloads folder
 	const downloadsDir = path.join(__dirname, "..", "downloads");
 	if (!fs.existsSync(downloadsDir)) {
@@ -233,7 +237,11 @@ async function downloadLeads(req, res) {
 	}
 
 	try {
-		const leads = await Lead.find({}).lean();
+		// finding all the entries
+		// const leads = await Lead.find({}).lean();
+
+		// finding specific entries
+		const leads = await Lead.find({ _id: {$in : body.ids}}).lean();
 
 		const flattenedLeads = leads.map((lead) => flattenObject(lead));
 
