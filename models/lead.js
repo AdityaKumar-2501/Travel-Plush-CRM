@@ -94,7 +94,6 @@ const leadSchema = new mongoose.Schema(
 		visa: { type: String, required: false },
 		leadStatus: { type: String, required: false },
 		assignTo: { type: mongoose.Schema.Types.ObjectId, ref: 'User'},
-		assignBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User'},
 		assignAt: { type: Date, required: false },
 		flights: [flightSchema],
 		hotels: [hotelSchema],

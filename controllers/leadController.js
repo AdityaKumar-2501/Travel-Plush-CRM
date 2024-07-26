@@ -17,6 +17,9 @@ const testRouter = (req, res) => {
 
 const filterLead = async (req, res) => {
 	const body = req.body;
+	const page = req.query.page - 1 || 0; // subtracted 1 so that first 3 will not skip
+	const pageSize = 10;
+	const skip = page * pageSize;
 
 	// this query is to find the lead by checking the partial information (using regex) of any field that is given in body while calling the API
 	// and fecth results from database
@@ -28,9 +31,36 @@ const filterLead = async (req, res) => {
 	}
 
 	try {
-		const lead = await Lead.find(query);
-		if (!lead.length) return res.status(404).send("No Lead found");
-		return res.status(200).send(lead);
+		const { name , _id, profile } = req.foundUser;
+		let filteredLeads;
+
+		if(profile === "superAdmin"){
+			filteredLeads = await Lead.aggregate([
+				{
+					$lookup:{
+						from: 'users',
+						localField : 'assignTo',
+						foreignField : '_id',
+						as: 'userData'
+					}
+				},
+				{ $match: query },
+				{ $sort: { _id: -1 } },
+				{ $skip: skip },
+				{ $limit: pageSize }
+			]);
+		}
+		else if (profile === "salesExecutive"){
+			filteredLeads = await Lead.find({
+				assignTo : _id
+			}).sort({_id : -1}).skip(skip).limit(pageSize);
+		}
+		else{
+			return res.status(403).send('Unauthorized.');
+		}
+
+		if (!filteredLeads.length) return res.status(404).send("No Lead found");
+		return res.status(200).send(filteredLeads);
 	} catch (error) {
 		return res.status(500).send(`Internal server error ${error.message}`);
 	}
@@ -38,12 +68,48 @@ const filterLead = async (req, res) => {
 
 async function getAllLeads(req, res) {
 	const page = req.query.page - 1 || 0; // subtracted 1 so that first 3 will not skip
+	const pageSize = 10;
+	const skip = page * pageSize;
+
+
 	try {
-		const allLeads = await Lead.aggregate([
-			{ $skip: page * 10 },
-			{ $limit: 10 },
-		]);
-		return res.status(200).send(allLeads);
+		const { _id, profile } = req.foundUser;
+
+		let allLeads;
+
+		if(profile === "superAdmin"){
+			allLeads = await Lead.aggregate([
+				{
+					$lookup:{
+						from: 'users',
+						localField : 'assignTo',
+						foreignField : '_id',
+						as: 'userData'
+					}
+				}
+			]).sort({_id : -1}).skip(skip).limit(pageSize);
+		}
+		else if (profile === "salesExecutive"){
+			allLeads = await Lead.find({
+				assignTo : _id
+			}).sort({_id : -1}).skip(skip).limit(pageSize);
+		}
+		else{
+			return res.status(403).send('Unauthorized.');
+		}
+
+		console.log(allLeads)
+
+		const totalLeads = await Lead.countDocuments(allLeads);
+		const totalPages = Math.ceil(totalLeads / pageSize);
+
+		return res.status(200).json({
+			message: "Pagination search successfully!",
+			data: allLeads,
+			totalLeads,
+			currentPage: page+1,
+			totalPages
+		});
 	} catch (error) {
 		console.log("error:", error);
 		return res.status(500).send("Internal server error " + error.message);
@@ -125,6 +191,9 @@ async function deleteLead(req, res) {
 
 async function golbalSearch(req, res) {
 	const searchItem = req.query.search;
+	const page = req.query.page - 1 || 0; // subtracted 1 so that first 3 will not skip
+	const pageSize = 10;
+	const skip = page * pageSize;
 
 	if (!searchItem) {
 		return res.status(400).send("Missing search parameter");
@@ -143,14 +212,50 @@ async function golbalSearch(req, res) {
 			return { [field]: { $regex: searchItem, $options: "i" } }; // 'i' for case-insensitive search
 		});
 
-		// Execute the search query
-		const results = await Lead.find({ $or: orConditions });
 
-		if (!results.length) {
-			return res.status(404).send("No matching records found.");
+		const { _id, profile } = req.foundUser;
+		
+		let leads;
+
+		if(profile === "superAdmin"){
+			leads = await Lead.aggregate([
+				{
+					$lookup:{
+						from: 'users',
+						localField : 'assignTo',
+						foreignField : '_id',
+						as: 'userData'
+					}
+				},
+				{ $match: { $or: orConditions }},
+				{ $sort: { _id: -1 } },
+				{ $skip: skip },
+				{ $limit: pageSize }
+
+			]);
+		}
+		else if (profile === "salesExecutive"){
+			leads = await Lead.find({
+				assignTo : _id
+			}).sort({_id : -1}).skip(skip).limit(pageSize);
+		}
+		else{
+			return res.status(403).send('Unauthorized.');
 		}
 
-		return res.status(200).json(results);
+
+		const totalLeads = await Lead.countDocuments(leads);
+		const totalPages = Math.ceil(totalLeads / pageSize);
+
+		if (!leads.length) return res.status(404).send("No Lead found");
+		return res.status(200).json({
+			message: "Pagination search successfully!",
+			data: leads,
+			totalLeads,
+			currentPage: page+1,
+			totalPages
+		});
+
 	} catch (error) {
 		console.error(error);
 		return res.status(500).send(`Internal Server Error: ${error.message}`);

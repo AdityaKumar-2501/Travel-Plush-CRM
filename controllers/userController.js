@@ -97,7 +97,7 @@ async function LoginUser(req, res) {
 		const token = jwt.sign(
 			{ foundUser: userData },
 			`${process.env.JWTPRIVATEKEY}`,
-			{ expiresIn: "14400000" }
+			{ expiresIn: "9h" }
 		);
 		return res.status(200).send({ token, message: "Signin Successful!" });
 	} catch (err) {
