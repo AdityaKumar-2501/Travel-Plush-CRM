@@ -7,14 +7,11 @@ const db = require("./config/db.js")
 const MiddleWares = require("./config/extra.js")
 const indexRouter = require("./routes/index.js")
 
+MiddleWares(app)
 
 app.use("/" , indexRouter)
 
-
-
-MiddleWares(app)
 db()
 app.listen(process.env.port, () => {
     console.log(`${process.env.port} port is running`)
 })
-
