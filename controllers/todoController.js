@@ -17,6 +17,8 @@ async function getAllTodos(req, res) {
 	const pageSize = 10;
 	const skip = page * pageSize;
 
+    if(page < 0)  return res.status(400).send("Invalid page number")
+
     try {
         const {_id, profile } = req.foundUser;
 

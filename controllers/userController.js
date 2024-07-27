@@ -179,10 +179,37 @@ async function changeTeamPassword(req, res) {
 	}
 }
 
+// ? Only SuperAdmin can all users or any user.
+
 async function getUser(req, res) {
+	const page = req.query.page - 1 || 0; // subtracted 1 so that first 3 will not skip
+	const pageSize = 10;
+	const skip = page * pageSize;
+
+	if (page < 0) return res.status(400).send("Invalid page number");
+
 	try {
-		const allUser = await User.find();
-		return res.status(200).send(allUser);
+		const { profile } = req.foundUser;
+
+		let allUser;
+		if (profile === "superAdmin") {
+			allUser = await User.find();
+
+			const totalUsers = allUser.length;
+			const totalPages = Math.ceil(totalUsers / pageSize);
+
+			return res.status(200).json({
+				message: "Pagination search successfully!",
+				data: allUser,
+				totalUsers,
+				currentPage: page + 1,
+				totalPages,
+			});
+		}
+		else{
+			res.status(400).send("Unauthorized");
+		}
+
 	} catch (error) {
 		console.log("error:", error);
 		return res.status(500).send(`Internal server error - ${error.message}`);
@@ -227,13 +254,7 @@ async function postUser(req, res) {
 }
 
 async function updateUser(req, res) {
-	let {
-		email,
-		name,
-		profile,
-		newPassword,
-		confirmPassword,
-	} = req.body;
+	let { email, name, profile, newPassword, confirmPassword } = req.body;
 	console.log("req.body", req.body);
 
 	if (!email || !name || !profile)
@@ -299,7 +320,6 @@ async function deleteUser(req, res) {
 		return res.status(500).send(`Internal Server Error - ${error.message}`);
 	}
 }
-
 
 // ? Cureently payNotifications, sent
 
@@ -367,20 +387,21 @@ async function payNotifications(req, res) {
 }
 
 async function sentOtp(req, res) {
-	const randomNumber = Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000;
+	const randomNumber =
+		Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000;
 	const otp = randomNumber.toString();
 
 	try {
 		// let email = req.body.email;
 		// let findUser = await User.findOne({ email });
-        // console.log(findUser)
+		// console.log(findUser)
 		// if (findUser) {
 		// 	return res
 		// 		.status(400)
 		// 		.json({ message: "Email Already Registered" });
 		// }
 		// let userOtp = await Verification.findOne({ email });
-        // console.log(userOtp)
+		// console.log(userOtp)
 		// if (userOtp) {
 		// 	userOtp.otp = otp;
 		// 	await userOtp.save();
@@ -389,31 +410,33 @@ async function sentOtp(req, res) {
 		// 	await userOtp.save();
 		// }
 
-        const email = req.body.email;
-        
-        if (!email) {
-            return res.status(400).json({ message: "Email is required" });
-        }
+		const email = req.body.email;
 
-        let findUser = await User.findOne({ email });
-        console.log(findUser)
-        if (findUser) {
-            return res.status(400).json({ message: "Email Already Registered" });
-        }
+		if (!email) {
+			return res.status(400).json({ message: "Email is required" });
+		}
 
-        let userOtp = await Verification.findOne({ email });
-        console.log(userOtp)
-        if (userOtp !== null) {
-            userOtp.otp = otp;
-            await userOtp.save();
-        } else {
-            userOtp = new Verification({ email, otp });
-            await userOtp.save();
-        }
+		let findUser = await User.findOne({ email });
+		console.log(findUser);
+		if (findUser) {
+			return res
+				.status(400)
+				.json({ message: "Email Already Registered" });
+		}
 
-        res.send("worked")
+		let userOtp = await Verification.findOne({ email });
+		console.log(userOtp);
+		if (userOtp !== null) {
+			userOtp.otp = otp;
+			await userOtp.save();
+		} else {
+			userOtp = new Verification({ email, otp });
+			await userOtp.save();
+		}
 
-        // transporter is not created yet;
+		res.send("worked");
+
+		// transporter is not created yet;
 		// const response = await transporter.sendMail(mailOptions);
 
 		// if (response.messageId) {

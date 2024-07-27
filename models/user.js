@@ -1,9 +1,3 @@
-//////////////////comment this below code its throw error ////
-//ASK
-// const Db = require("../db");
-// const connections = Db(); // Call the Db function to get the connections
-// const firstDBConnection = connections.firstDBConnection;
-
 const mongoose = require("mongoose");
 
 //otp verification
@@ -18,8 +12,8 @@ const userSchema = mongoose.Schema({
 	seized: { type: Boolean, required: true },
 	name: { type: String, required: true },
 	mobile: { type: String, required: true },
-	profile: { type: String, required: true },//superAdmin/salesTl/salesExecutive/operationsTl/operationsExecutive
-	// profile: { type: String, enum: ["superAdmin", "salesTl","salesExecutive", "operationsTl", "operationsExecutive"], required: true },
+	profile: { type: String, required: true },	//superAdmin/salesExecutive
+	// profile: { type: String, enum: ["superAdmin","salesExecutive"], required: true },
 	password: { type: String, required: true },
 	// paidDateCreated: { type: String, required: false },
 	orgSubscriptionAmount: { type: String, required: false },

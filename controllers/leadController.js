@@ -21,6 +21,8 @@ const filterLead = async (req, res) => {
 	const pageSize = 10;
 	const skip = page * pageSize;
 
+	if (page < 0) return res.status(400).send("Invalid page number");
+
 	// this query is to find the lead by checking the partial information (using regex) of any field that is given in body while calling the API
 	// and fecth results from database
 	const query = {};
@@ -79,6 +81,7 @@ async function getAllLeads(req, res) {
 	const pageSize = 10;
 	const skip = page * pageSize;
 
+	if (page < 0) return res.status(400).send("Invalid page number");
 
 	try {
 		const { _id, profile } = req.foundUser;
@@ -201,6 +204,8 @@ async function golbalSearch(req, res) {
 	const page = req.query.page - 1 || 0; // subtracted 1 so that first 3 will not skip
 	const pageSize = 10;
 	const skip = page * pageSize;
+
+	if (page < 0) return res.status(400).send("Invalid page number");
 
 	if (!searchItem) {
 		return res.status(400).send("Missing search parameter");
