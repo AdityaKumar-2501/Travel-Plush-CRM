@@ -344,7 +344,7 @@ async function userProfile(req, res) {
 				},
 			},
 		]);
-		console.log(users);
+		// console.log(users);
 		if (!users.length) return res.status(404).send("No users found!");
 		else {
 			// const [names, profile, totalUsers] = users

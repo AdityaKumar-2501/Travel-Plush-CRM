@@ -51,9 +51,17 @@ const filterLead = async (req, res) => {
 			]);
 		}
 		else if (profile === "salesExecutive"){
-			filteredLeads = await Lead.find({
-				assignTo : _id
-			}).sort({_id : -1}).skip(skip).limit(pageSize);
+			filteredLeads = await Lead.aggregate([
+				{ $match: 
+					{
+						assignTo : _id,
+						query
+					} 
+				},
+				{ $sort: { _id: -1 } },
+				{ $skip: skip },
+				{ $limit: pageSize }
+			]);
 		}
 		else{
 			return res.status(403).send('Unauthorized.');
@@ -98,9 +106,8 @@ async function getAllLeads(req, res) {
 			return res.status(403).send('Unauthorized.');
 		}
 
-		console.log(allLeads)
 
-		const totalLeads = await Lead.countDocuments(allLeads);
+		const totalLeads = (allLeads.length);
 		const totalPages = Math.ceil(totalLeads / pageSize);
 
 		return res.status(200).json({
@@ -235,16 +242,20 @@ async function golbalSearch(req, res) {
 			]);
 		}
 		else if (profile === "salesExecutive"){
-			leads = await Lead.find({
-				assignTo : _id
-			}).sort({_id : -1}).skip(skip).limit(pageSize);
+			leads = await Lead.aggregate([
+				{ $match: { assignTo : _id, $or: orConditions }},
+				{ $sort: { _id: -1 } },
+				{ $skip: skip },
+				{ $limit: pageSize }
+
+			]);
 		}
 		else{
 			return res.status(403).send('Unauthorized.');
 		}
 
 
-		const totalLeads = await Lead.countDocuments(leads);
+		const totalLeads = leads.length;
 		const totalPages = Math.ceil(totalLeads / pageSize);
 
 		if (!leads.length) return res.status(404).send("No Lead found");
@@ -263,19 +274,8 @@ async function golbalSearch(req, res) {
 }
 
 async function assignLead(req, res) {
-	const { assignTo, assignBy, leadId } = req.body;
+	const { assignTo, leadIds } = req.body;
 	try {
-		// for finding the any Super Admin exist
-		const existingSuperAdmin = await User.findOne({
-			_id: assignBy,
-			profile: "superAdmin",
-		});
-		if (!existingSuperAdmin) {
-			return res
-				.status(400)
-				.send(`Assigning User is not the Super Admin`);
-		}
-
 		// for finding the any user exist to assignTo
 		const existingUser = await User.findOne({
 			_id : assignTo
@@ -284,16 +284,21 @@ async function assignLead(req, res) {
 			return res.status(400).send(`Assigned User is not Exist`);
 		}
 
-		// for finding the any lead exist
-		const existingLead = await Lead.findOne({_id: leadId});
-		if(!existingLead) {
-			return res.status(400).send(`Lead is not Exist`);
-		}
 
-		const assigning = await Lead.findOneAndUpdate({_id: leadId, $set: {assignTo, assignBy, assignAt: Date.now() }});
-
-		if(assigning) {
-			return res.status(200).json({Super_Admin :existingSuperAdmin.name , User:existingUser.name, lead: existingLead.name });
+		// Update all the leads with the provided leadIds
+		const result = await Lead.updateMany(
+			{ _id: { $in: leadIds } },
+			{ $set: { assignTo, assignAt: Date.now() } }
+		);
+	
+		if (result) {
+			return res.status(200).json({
+				message: `${result.modifiedCount } leads updated successfully`,
+				assignTo: existingUser.name,
+				result: result
+			});
+		} else {
+			return res.status(404).send('No leads were updated');
 		}
 
 	} catch (error) {
