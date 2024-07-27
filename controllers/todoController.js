@@ -1,6 +1,7 @@
 const currentDateTime = require('../functions/currentDateTime');
 const Todo = require('../models/todo');
 const mongoose = require('mongoose');
+const Lead = require('../models/lead');
 
 const testRouter = (req, res)=> {
     try {
@@ -21,10 +22,6 @@ async function getAllTodos(req, res) {
 
         let todos;
 
-        // Convert _id to ObjectId
-        // const userId = new mongoose.Types.ObjectId(_id);
-
-
         todos = await Todo.aggregate([
             {
                 $match : { createdBy : new mongoose.Types.ObjectId(_id) }
@@ -32,6 +29,7 @@ async function getAllTodos(req, res) {
             { $skip: skip },
             { $limit: pageSize }
         ])
+        
 
         const totaltodos = todos.length;
 		const totalPages = Math.ceil(totaltodos / pageSize);
@@ -52,9 +50,27 @@ async function getAllTodos(req, res) {
 
 async function createTodo(req, res) {
     try {
-        const body = req.body;
-        const newTodo = await Todo.create(body);
-        return res.status(200).send('Todo created successfully');
+        const { subject, reminderDate, completed, leadId } = req.body;
+        const {_id} = req.foundUser;   // get the information of the logged in user from the auth middleware
+
+        const createdBy = _id;
+
+        const lead = await Lead.findOne( {_id : leadId} );
+
+        if(!lead) return res.status(404).send("No lead found");
+
+        const newTodo = await Todo.create({
+            subject,
+            reminderDate,
+            completed,
+            createdBy : createdBy,
+            name : lead.name,
+            mobile : lead.mobile,
+            leadStatus : lead.leadStatus,
+            travelDate: lead.travelStartDate,
+            destination : lead.destination,
+        });
+        return res.status(200).json({msg : 'Todo created successfully', data: newTodo})
     } catch (error) {
         console.log('error:', error);
         return res.status(500).send('Internal server error: '+ error.message);
