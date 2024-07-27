@@ -33,7 +33,7 @@ async function getAllLeads(req, res) {
 		} else if (profile === "salesExecutive") {
 			leads = await Lead.aggregate([
 				{
-					$match : {assignTo: _id}
+					$match : {assignTo: new mongoose.Types.ObjectId(_id)}
 				},{
 					$group: {
 						_id: null,
@@ -94,7 +94,7 @@ async function todaysLeads(req, res) {
 			leads = await Lead.aggregate([
 				{
 					$match: {
-						assignTo: _id,
+						assignTo: new mongoose.Types.ObjectId(_id),
 						createdAt: {
 							$gte: startOfDay.toDate(),
 							$lt: endOfDay.toDate(),
@@ -167,7 +167,7 @@ async function weeklyLeads(req, res) {
 			leads = await Lead.aggregate([
 				{
 					$match: {
-						assignTo: _id,
+						assignTo: new mongoose.Types.ObjectId(_id),
 						createdAt: {
 							$gte: startOfWeek.toDate(),
 							$lt: endOfWeek.toDate(),
@@ -237,7 +237,7 @@ async function monthlyLeads(req, res) {
 			leads = await Lead.aggregate([
 				{
 					$match: {
-						assignTo: _id,
+						assignTo: new mongoose.Types.ObjectId(_id),
 						createdAt: {
 							$gte: startOfMonth.toDate(),
 							$lt: endOfMonth.toDate(),
@@ -294,7 +294,7 @@ async function everyMonthLeads(req, res) {
 		} else if (profile === "salesExecutive") {
 			leads = await Lead.aggregate([
 				{
-					$match :{ assignTo: _id }
+					$match :{ assignTo: new mongoose.Types.ObjectId(_id) }
 				},
 				{
 					$group: {

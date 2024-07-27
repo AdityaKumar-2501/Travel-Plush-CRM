@@ -54,7 +54,7 @@ const filterLead = async (req, res) => {
 			filteredLeads = await Lead.aggregate([
 				{ $match: 
 					{
-						assignTo : _id,
+						assignTo : new mongoose.Types.ObjectId(_id),
 						query
 					} 
 				},
@@ -243,7 +243,7 @@ async function golbalSearch(req, res) {
 		}
 		else if (profile === "salesExecutive"){
 			leads = await Lead.aggregate([
-				{ $match: { assignTo : _id, $or: orConditions }},
+				{ $match: { assignTo : new mongoose.Types.ObjectId(_id), $or: orConditions }},
 				{ $sort: { _id: -1 } },
 				{ $skip: skip },
 				{ $limit: pageSize }
@@ -363,7 +363,7 @@ async function downloadLeads(req, res) {
 			for (let key in lead) {
 				if (
 					key.startsWith("_id.buffer") ||
-					key.includes("_id_buffer")
+					key.includes("_id_buffer") || key.includes("buffer")
 				) {
 					delete lead[key];
 				}

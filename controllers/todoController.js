@@ -1,5 +1,6 @@
 const currentDateTime = require('../functions/currentDateTime');
 const Todo = require('../models/todo');
+const mongoose = require('mongoose');
 
 const testRouter = (req, res)=> {
     try {
@@ -11,9 +12,38 @@ const testRouter = (req, res)=> {
 }
 
 async function getAllTodos(req, res) {
+    const page = req.query.page - 1 || 0; // subtracted 1 so that first 3 will not skip
+	const pageSize = 10;
+	const skip = page * pageSize;
+
     try {
-        const allTodos = await Todo.find();
-        return res.status(200).send(allTodos);
+        const {_id, profile } = req.foundUser;
+
+        let todos;
+
+        // Convert _id to ObjectId
+        // const userId = new mongoose.Types.ObjectId(_id);
+
+
+        todos = await Todo.aggregate([
+            {
+                $match : { createdBy : new mongoose.Types.ObjectId(_id) }
+            },
+            { $skip: skip },
+            { $limit: pageSize }
+        ])
+
+        const totaltodos = todos.length;
+		const totalPages = Math.ceil(totaltodos / pageSize);
+
+		if (!todos.length) return res.status(404).send("No todo found");
+		return res.status(200).json({
+			message: "Pagination search successfully!",
+			data: todos,
+			totaltodos,
+			currentPage: page+1,
+			totalPages
+		});
     } catch (error) {
         console.log('error:', error);
         return res.status(500).send(`Internal Server Error: ${error.message}`);
